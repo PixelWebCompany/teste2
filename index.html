@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Adicionar Evento ao Google Calendar</title>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        // A função de inicialização que carrega a biblioteca do Google
+        function handleClientLoad() {
+            gapi.load("client:auth2", function() {
+                // Inicializando a autenticação OAuth com o Client ID
+                gapi.auth2.init({
+                    client_id: "433147724454-5hq93kc92h0g3e4ihl38jfk7eqq6ldea.apps.googleusercontent.com"  // Substitua pelo seu Client ID
+                }).then(function() {
+                    console.log("Biblioteca carregada e autenticação inicializada");
+                });
+            });
+        }
+
+        // Função de autenticação para permitir que o usuário entre com a conta do Google
+        function authenticate() {
+            gapi.auth2.getAuthInstance().signIn().then(function() {
+                console.log("Usuário autenticado");
+                loadClient();
+            }).catch(function(error) {
+                console.log("Erro de autenticação: ", error);
+            });
+        }
+
+        // Função para carregar o cliente da API Google Calendar
+        function loadClient() {
+            gapi.client.load("https://content.googleapis.com/discovery/v1/apis/calendar/v3/rest").then(function() {
+                console.log("API Calendar carregada");
+                addEvent();  // Depois de carregar a API, adicionamos o evento
+            }).catch(function(error) {
+                console.log("Erro ao carregar a API: ", error);
+            });
+        }
+
+        // Função para adicionar o evento ao Google Calendar
+        function addEvent() {
+            var event = {
+                'summary': 'Nome do Evento',
+                'location': 'Localização',
+                'description': 'Descrição do evento',
+                'start': {
+                    'dateTime': '2024-11-12T09:00:00-07:00',  // Ajuste o horário conforme necessário
+                    'timeZone': 'America/Los_Angeles'
+                },
+                'end': {
+                    'dateTime': '2024-11-12T10:00:00-07:00',  // Ajuste o horário conforme necessário
+                    'timeZone': 'America/Los_Angeles'
+                },
+                'attendees': [
+                    {'email': 'exemplo@dominio.com'}  // Email dos participantes
+                ],
+            };
+
+            // Requisição para adicionar o evento ao calendário
+            var request = gapi.client.calendar.events.insert({
+                'calendarId': 'primary',
+                'resource': event
+            });
+
+            request.execute(function(event) {
+                if (event.htmlLink) {
+                    console.log('Evento adicionado: ' + event.htmlLink);
+                    alert('Evento adicionado com sucesso!');
+                } else {
+                    console.log('Erro ao adicionar evento: ', event);
+                    alert('Ocorreu um erro ao adicionar o evento.');
+                }
+            });
+        }
+    </script>
+</head>
+<body onload="handleClientLoad()">
+    <button onclick="authenticate()">Adicionar Evento</button>
+</body>
+</html>
